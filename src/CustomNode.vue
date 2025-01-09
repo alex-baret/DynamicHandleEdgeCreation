@@ -43,6 +43,7 @@ function removeHandle()  {
   if (letters.value.length > 0) {
     letters.value.shift()
   }
+  updateNodeInternals([nodeId])
 }
 
 onConnectStart(({ nodeId, handleId, handleType }) => {
@@ -57,7 +58,7 @@ onConnectStart(({ nodeId, handleId, handleType }) => {
     <div>
       <p style="font-size: 12px;">Node {{ nodeId }}</p>
     </div>
-    <div v-for="(handleId, index) in letters">
+    <div v-for="(handleId, index) in letters" :key="handleId">
       <div style="  display: flex;flex-direction: column; justify-content: space-between;">
         <div>
         <Handle class="top-handle" :id="handleId" :position="Position.Top"/>

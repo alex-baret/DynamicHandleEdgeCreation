@@ -4,7 +4,7 @@ import { Handle, Position, useNodeId, useVueFlow} from "@vue-flow/core";
 import { ref } from "vue";
 
 const nodeId = useNodeId();
-const {updateNodeInternals, onConnect, onConnectStart } = useVueFlow();
+const {updateNodeInternals, onConnect, onConnectStart,findNode } = useVueFlow();
 
 const letters = ref([])
 const repeatCount = ref(1)
@@ -45,11 +45,18 @@ function removeHandle()  {
   }
 }
 
+onConnectStart(({ nodeId, handleId, handleType }) => {
+  const node = findNode(nodeId);
+  console.log("\"From\" Node id:", nodeId, ", Source handle id:", handleId)
+});
 
 </script>
 
 <template>
   <div class="custom-node">
+    <div>
+      <p style="font-size: 12px;">Node {{ nodeId }}</p>
+    </div>
     <div v-for="(handleId, index) in letters">
       <div style="  display: flex;flex-direction: column; justify-content: space-between;">
         <div>
@@ -60,11 +67,6 @@ function removeHandle()  {
     </div>
       <button class="increment nodrag" @click="addHandle()">Add handle</button>
       <button class="increment nodrag" @click="removeHandle()">Remove handle</button>
-      <div v-if="counter > 0" class="counter">
-        <div class="count" v-for="count of counter" :key="`count-${count}`">
-          {{ count }}
-        </div>
-      </div>
     </div>
 </template>
 

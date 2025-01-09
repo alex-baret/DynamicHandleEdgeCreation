@@ -1,18 +1,65 @@
 <script lang="ts" setup>
-import { Handle, Position } from "@vue-flow/core";
+// @ts-nocheck
+import { Handle, Position, useNodeId, useVueFlow} from "@vue-flow/core";
 import { ref } from "vue";
 
-const counter = ref(0);
-const handles: string[] = ['a','b'];
+const nodeId = useNodeId();
+const {updateNodeInternals, onConnect, onConnectStart } = useVueFlow();
+
+const letters = ref([])
+const repeatCount = ref(1)
+
+/**
+ * Generates letters, repeats if entire alphabet has been used
+ */
+function generateLetter() {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  const unusedLetter = alphabet.split('').find(letter => 
+    !letters.value.includes(letter.repeat(repeatCount.value))
+  )
+  
+  if (unusedLetter) {
+    letters.value.push(unusedLetter.repeat(repeatCount.value))
+  } else {
+    repeatCount.value++
+    letters.value.push('A'.repeat(repeatCount.value))
+
+  }
+}
+
+/**
+ * Adds a new handleId to the array of handles and updates node internals
+ */
+function addHandle(){
+  const handleId = generateLetter();
+
+  updateNodeInternals([nodeId])
+}
+
+/**
+ * Removes the first item in the handles array and updates node internals
+ */
+function removeHandle()  {
+  if (letters.value.length > 0) {
+    letters.value.shift()
+  }
+}
+
+
 </script>
 
 <template>
   <div class="custom-node">
-    <div v-for="(handle, index) in handles">
-      <Handle class="top-handle" :id="handle" :position="Position.Top"/>
+    <div v-for="(handleId, index) in letters">
+      <div style="  display: flex;flex-direction: column; justify-content: space-between;">
+        <div>
+        <Handle class="top-handle" :id="handleId" :position="Position.Top"/>
+      </div>
+        <div style="position: relative; right: 10px; top:-10px;">{{ handleId }}</div>
+      </div>
     </div>
-      <Handle type="target" :position="Position.Top" />
-      <button class="increment nodrag" @click="counter++">Increment</button>
+      <button class="increment nodrag" @click="addHandle()">Add handle</button>
+      <button class="increment nodrag" @click="removeHandle()">Remove handle</button>
       <div v-if="counter > 0" class="counter">
         <div class="count" v-for="count of counter" :key="`count-${count}`">
           {{ count }}
@@ -23,13 +70,16 @@ const handles: string[] = ['a','b'];
 
 <style>
 .top-handle{
-
+  position: relative;
+  width: 12px;
+  height: 12px;
+  right:10px;
 }
 .custom-node {
   min-width: 100px;
   gap: 4px;
   padding: 8px;
-  background: white;
+  background: transparent;
   border: 1px solid black;
   border-radius: 4px;
 }
@@ -41,6 +91,7 @@ const handles: string[] = ['a','b'];
   color: #fff;
   cursor: pointer;
   border: none;
+  margin-right: 3px;
 }
 
 .increment:hover {
